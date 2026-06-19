@@ -68,7 +68,7 @@ function resolveCollisions(items, minSeparation) {
   return sorted;
 }
 
-export default function ChartWheel({ chart }) {
+export default function ChartWheel({ chart, onPlanetClick })  {
   if (!chart) return null;
 
   const size = 600;
@@ -198,31 +198,39 @@ export default function ChartWheel({ chart }) {
       <circle cx={cx} cy={cy} r={R_ASPECT} fill="none" stroke="#fde68a" strokeWidth="1" opacity="0.4" />
 
       {/* Planets */}
-      {planetMarks.map((p) => (
-        <g key={p.key}>
-          <line
-            x1={p.tickPos.x} y1={p.tickPos.y}
-            x2={p.glyphPos.x} y2={p.glyphPos.y}
-            stroke={PLANET_COLORS[p.key] || "#fff"}
-            strokeWidth="1" opacity="0.5"
-          />
-          <circle cx={p.glyphPos.x} cy={p.glyphPos.y} r="14" fill="#0f0f23" stroke={PLANET_COLORS[p.key] || "#fff"} strokeWidth="1.5" />
-          <text
-            x={p.glyphPos.x} y={p.glyphPos.y}
-            fill={PLANET_COLORS[p.key] || "#fff"} fontSize="16" textAnchor="middle" dominantBaseline="central"
-          >
-            {PLANET_GLYPHS[p.key]}
-          </text>
-          {p.retrograde && (
-            <text
-              x={p.glyphPos.x + 12} y={p.glyphPos.y - 10}
-              fill="#ef4444" fontSize="9"
-            >
-              R
-            </text>
-          )}
-        </g>
-      ))}
+      {/* Planets */}
+    {planetMarks.map((p) => (
+      <g
+       key={p.key}
+      onClick={() => onPlanetClick && onPlanetClick(p)}
+      style={{ cursor: onPlanetClick ? "pointer" : "default" }}
+      >
+      <line
+        x1={p.tickPos.x} y1={p.tickPos.y}
+        x2={p.glyphPos.x} y2={p.glyphPos.y}
+        stroke={PLANET_COLORS[p.key] || "#fff"}
+        strokeWidth="1" opacity="0.5"
+      />
+      <circle
+        cx={p.glyphPos.x} cy={p.glyphPos.y} r="14"
+        fill="#0f0f23"
+        stroke={PLANET_COLORS[p.key] || "#fff"}
+        strokeWidth="1.5"
+      />
+      <text
+        x={p.glyphPos.x} y={p.glyphPos.y}
+        fill={PLANET_COLORS[p.key] || "#fff"}
+        fontSize="16" textAnchor="middle" dominantBaseline="central"
+      >
+      {PLANET_GLYPHS[p.key]}
+      </text>
+      {p.retrograde && (
+        <text x={p.glyphPos.x + 12} y={p.glyphPos.y - 10} fill="#ef4444" fontSize="9">
+        R
+        </text>
+      )}
+    </g>
+    ))}
     </svg>
   );
 }

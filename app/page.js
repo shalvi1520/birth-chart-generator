@@ -5,11 +5,13 @@ import BirthChartForm from "@/components/BirthChartForm";
 import ChartWheel from "@/components/ChartWheel";
 import PlanetTable from "@/components/PlanetTable";
 import Interpretations from "@/components/Interpretations";
+import PlanetPopup from "@/components/PlanetPopup";
 
 export default function Home() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedPlanet, setSelectedPlanet] = useState(null);
 
   const handleSubmit = async (formData) => {
     setLoading(true);
@@ -58,13 +60,15 @@ export default function Home() {
           {result.location.displayName}
         </p>
         <div className="max-w-md mx-auto">
-          <ChartWheel chart={result.chart} />
+          <ChartWheel chart={result.chart} onPlanetClick={setSelectedPlanet} />
         </div>
           <PlanetTable chart={result.chart} />
           <Interpretations chart={result.chart} />
         </div>
 )}
       </div>
+      <PlanetPopup planet={selectedPlanet} onClose={() => setSelectedPlanet(null)} />
     </main>
+    
   );
 }
