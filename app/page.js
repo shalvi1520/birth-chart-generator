@@ -39,7 +39,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#101029] to-[#252065] text-white px-4 py-12">
+    <main className="min-h-screen bg-linear-to-b from-[#101029] to-[#252065] text-white px-4 py-12">
       <div className="max-w-3xl mx-auto text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-amber-300 mb-2">
           Birth Chart Generator
