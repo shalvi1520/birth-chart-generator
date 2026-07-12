@@ -4,11 +4,11 @@ import { calculateBirthChart } from "@/lib/astrology";
 export async function GET() {
   const { horoscope, timezone } = calculateBirthChart({
     year: 1990,
-    month: 6,   // June
+    month: 6,   
     day: 15,
     hour: 14,
     minute: 30,
-    latitude: 40.7128,   // New York
+    latitude: 40.7128,   
     longitude: -74.0060,
   });
 

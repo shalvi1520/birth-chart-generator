@@ -1,16 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function BirthChartForm({ onSubmit, loading }) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [unknownTime, setUnknownTime] = useState(false);
-  const [location, setLocation] = useState("");
+
+  const [locationQuery, setLocationQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+
+    if (selected && locationQuery === selected.displayName) return;
+
+    if (locationQuery.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+
+    setSearching(true);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/geocode?q=${encodeURIComponent(locationQuery)}`);
+        const data = await res.json();
+        setResults(data.results || []);
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [locationQuery, selected]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!date || !location) return;
+    if (!date || !locationQuery) return;
 
     const [year, month, day] = date.split("-").map(Number);
     let hour = 12;
@@ -19,7 +50,15 @@ export default function BirthChartForm({ onSubmit, loading }) {
       [hour, minute] = time.split(":").map(Number);
     }
 
-    onSubmit({ year, month, day, hour, minute, location, unknownTime });
+    onSubmit({
+      year, month, day, hour, minute,
+      location: locationQuery,
+      unknownTime,
+
+      ...(selected
+        ? { latitude: selected.latitude, longitude: selected.longitude, displayName: selected.displayName }
+        : {}),
+    });
   };
 
   return (
@@ -65,7 +104,7 @@ export default function BirthChartForm({ onSubmit, loading }) {
         )}
       </div>
 
-      <div>
+      <div className="relative">
         <label className="block text-sm font-medium text-indigo-200 mb-1">
           Place of birth
         </label>
@@ -73,10 +112,34 @@ export default function BirthChartForm({ onSubmit, loading }) {
           type="text"
           required
           placeholder="e.g. Mumbai, India"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          value={locationQuery}
+          onChange={(e) => {
+            setLocationQuery(e.target.value);
+            setSelected(null);
+          }}
+          autoComplete="off"
           className="w-full rounded-lg bg-indigo-950 border border-indigo-700 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400"
         />
+        {searching && !selected && (
+          <p className="text-xs text-indigo-400 mt-1">Searching…</p>
+        )}
+        {results.length > 0 && !selected && (
+          <ul className="absolute z-10 w-full bg-indigo-950 border border-indigo-700 rounded-lg mt-1 max-h-60 overflow-auto shadow-lg">
+            {results.map((r, i) => (
+              <li
+                key={i}
+                onClick={() => {
+                  setSelected(r);
+                  setLocationQuery(r.displayName);
+                  setResults([]);
+                }}
+                className="px-4 py-2 hover:bg-indigo-800 cursor-pointer text-white text-sm"
+              >
+                {r.displayName}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <button
