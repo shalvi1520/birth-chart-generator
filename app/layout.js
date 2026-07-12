@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Birth - Chart - Generator",
-  description: "Created by Saumili",
+  description: "Spirit Elf",
 };
 
 export default function RootLayout({ children }) {
